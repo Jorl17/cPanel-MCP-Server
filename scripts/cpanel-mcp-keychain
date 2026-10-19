@@ -1,0 +1,24 @@
+#!/bin/zsh
+# Start the cPanel MCP server with the API token from the macOS Keychain.
+#
+# The MCP client sets CPANEL_SERVER_URL and CPANEL_USERNAME. We read the
+# token from the Keychain item that store-token-macos.sh creates, so the
+# token is not in any MCP configuration file.
+set -euo pipefail
+
+: "${CPANEL_SERVER_URL:?Set CPANEL_SERVER_URL in the MCP configuration}"
+: "${CPANEL_USERNAME:?Set CPANEL_USERNAME in the MCP configuration}"
+
+# Desktop apps start MCP servers with a short PATH, without Homebrew.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+repo_dir="${0:A:h:h}"
+account="${CPANEL_USERNAME}@${${CPANEL_SERVER_URL#*://}%%[:/]*}"
+
+if ! CPANEL_API_TOKEN="$(security find-generic-password -s cpanel-mcp -a "$account" -w 2>/dev/null)"; then
+  print -u2 "No Keychain item cpanel-mcp for $account. Run scripts/store-token-macos.sh."
+  exit 1
+fi
+export CPANEL_API_TOKEN
+
+exec node "$repo_dir/build/index.js"
