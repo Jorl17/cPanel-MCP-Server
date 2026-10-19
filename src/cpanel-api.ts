@@ -213,8 +213,8 @@ export class CpanelClient {
       `/execute/${encodeURIComponent(module)}/${encodeURIComponent(func)}`,
       params
     );
-    const result = parseJsonObject(raw, name).result;
-    if (!isObject(result) || typeof result.status !== "number") {
+    const result = parseJsonObject(raw, name);
+    if (typeof result.status !== "number") {
       throw new CpanelApiError(`${name} returned no result status`);
     }
 
