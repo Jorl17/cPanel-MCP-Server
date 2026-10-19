@@ -69,7 +69,8 @@ async function withClient(respond, fn) {
   }
 }
 
-const UAPI_OK = { result: { status: 1, errors: null, messages: null, data: [] } };
+// The shape of a reply from /execute, with the fields at the top level.
+const UAPI_OK = { status: 1, errors: null, messages: null, warnings: null, metadata: {}, data: [] };
 
 test("UAPI parameters, including passwords, go in the POST body and not in the URL", async () => {
   await withClient((req, res) => json(res, 200, UAPI_OK), async (client, fixture) => {
@@ -135,9 +136,9 @@ test("HTTP error messages leave out the response body", async () => {
 
 test("UAPI failures without error messages and malformed results are errors", async () => {
   const replies = [
-    { result: { status: 0, errors: [], messages: null, data: null } },
-    { result: { status: 0, errors: null, messages: null, data: null } },
-    { result: { errors: null, data: [] } },
+    { status: 0, errors: [], messages: null, data: null },
+    { status: 0, errors: null, messages: null, data: null },
+    { errors: null, data: [] },
     { unexpected: true },
     [],
   ];
@@ -180,5 +181,12 @@ test("successful API 2 results return their data", async () => {
   });
   await withClient((req, res) => json(res, 200, zoneOk), async (client) => {
     assert.deepEqual(await client.api2("ZoneEdit", "add_zone_record"), zoneOk.cpanelresult.data);
+  });
+});
+
+test("a successful UAPI reply returns its fields", async () => {
+  const reply = { ...UAPI_OK, data: [{ dest: "info@example.com", forward: "me@example.net" }] };
+  await withClient((req, res) => json(res, 200, reply), async (client) => {
+    assert.deepEqual(await client.uapi("Email", "list_forwarders"), reply);
   });
 });
