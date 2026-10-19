@@ -72,7 +72,7 @@ export function registerEmailFilterTools(server: McpServer, client: CpanelClient
 
         console.error(`[add_email_filter] ${filtername}: ${rules.length} rule(s), ${actions.length} action(s)`);
 
-        const result = await client.uapiPost("Email", "store_filter", params);
+        const result = await client.uapi("Email", "store_filter", params);
         return formatSuccess(`Email filter saved: ${filtername}`, result.data);
       })
   );
