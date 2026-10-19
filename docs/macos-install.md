@@ -10,7 +10,8 @@ desktop app with Claude Code, the Codex app, or their CLIs.
 
 ## 1. Get the code
 
-Use the `local-fixes` branch of this fork, at a fixed commit:
+Use the `local-fixes` branch of this fork. To install the same version on
+every Mac, check out the same commit of that branch.
 
 ```bash
 git clone https://github.com/Jorl17/cPanel-MCP-Server.git ~/src/cpanel-mcp-server
